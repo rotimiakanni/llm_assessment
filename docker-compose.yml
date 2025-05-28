@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  sensor_generator:
+    build: ./sensor_generator
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+
+  llm_worker:
+    build: ./llm_summarizer
+    command: celery -A worker worker --loglevel=info
+    depends_on:
+      - redis
+    volumes:
+      - ./data:/app/data
+      - ./llm_summarizer/models:/app/models
+    env_file:
+      - .env
+
+  anomaly_detector:
+    build: ./anomaly_detector
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - llm_worker
+    env_file:
+      - .env
+
+  api_server:
+    build: ./api_server
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
