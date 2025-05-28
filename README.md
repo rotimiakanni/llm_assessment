@@ -68,8 +68,8 @@ The system integrates [LangChain](https://www.langchain.com/) with a local LLM t
   - LangChain runs the model in an offline container
   - The generated summary is saved to `./data/summary.txt`
 
-### ✅ Async Summarization with Celery
-- Anomaly detection now enqueues summary tasks via **Celery + Redis**
+### Async Summarization with Celery
+- Anomaly detection enqueues summary tasks via **Celery + Redis**
 - Summary generation runs in a separate **`llm_worker`** container
 - Decouples LLM load from real-time detection to avoid timeouts or blocking
 
@@ -158,18 +158,24 @@ docker-compose logs -f anomaly_detector
 ```
 project-root/
 ├── sensor_generator/        # Simulates sensor readings every 2 seconds
-│   └── main.py
+│   ├── main.py
+│   ├── Dockerfile
+│   └── requirements.txt
 │
 ├── anomaly_detector/        # Detects spikes, drift, and dropouts
-│   └── main.py
+│   ├── main.py
+│   ├── Dockerfile
+│   └── requirements.txt
 │
 ├── llm_summarizer/          # LangChain-based summarizer with Mistral LLM
+│   ├── Dockerfile
 │   ├── summarize.py
 │   ├── worker.py            # Celery task handler
 │   ├── requirements.txt
 │   └── models/              # Contains the mistral .gguf model file
 │
 ├── api_server/              # REST API built with FastAPI
+│   ├── Dockerfile
 │   ├── main.py
 │   └── requirements.txt
 │
